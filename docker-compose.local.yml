@@ -87,8 +87,8 @@ services:
     networks:
       - clif-net
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
-      interval: 10s
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8123/ping"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
