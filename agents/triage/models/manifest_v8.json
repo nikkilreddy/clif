@@ -1,0 +1,582 @@
+{
+  "version": "8.0.0",
+  "created": "2026-03-20T23:48:49.214329+00:00",
+  "model_type": "LightGBM GBDT Binary Classifier",
+  "features": [
+    "hour_sin",
+    "hour_cos",
+    "dow_sin",
+    "dow_cos",
+    "is_off_hours",
+    "log_type",
+    "severity_numeric",
+    "message_length_log",
+    "message_entropy",
+    "dst_port_bin",
+    "protocol_numeric",
+    "total_bytes_log",
+    "byte_ratio",
+    "total_packets_log",
+    "packet_ratio",
+    "flow_duration_log",
+    "avg_pkt_size",
+    "pkt_size_variance",
+    "iat_mean",
+    "iat_stddev",
+    "tcp_syn_flag",
+    "tcp_rst_flag",
+    "tcp_fin_flag",
+    "retransmit_ratio",
+    "auth_type_encoded",
+    "status_is_fail",
+    "is_admin",
+    "src_dst_match",
+    "is_remote",
+    "fail_rate",
+    "unique_targets",
+    "event_frequency",
+    "domain_length",
+    "domain_entropy",
+    "subdomain_depth",
+    "digit_ratio",
+    "max_consonant_run",
+    "bigram_frequency",
+    "has_hex_pattern",
+    "tld_risk",
+    "url_length",
+    "url_entropy",
+    "query_param_count",
+    "has_sql_pattern",
+    "has_xss_pattern",
+    "has_traversal",
+    "http_method",
+    "subject_length",
+    "body_length_log",
+    "subject_entropy",
+    "url_count",
+    "caps_ratio",
+    "has_urgency",
+    "has_financial",
+    "event_name_encoded",
+    "is_sensitive_service",
+    "is_read_only",
+    "has_error",
+    "identity_type_encoded",
+    "is_root"
+  ],
+  "num_features": 60,
+  "models": {
+    "lgbm": {
+      "file": "lgbm_v8.onnx",
+      "text_file": "lgbm_v8.txt",
+      "weight": 0.85,
+      "type": "supervised"
+    },
+    "autoencoder": {
+      "file": "autoencoder_v8.onnx",
+      "calibration_file": "ae_calibration_v8.json",
+      "weight": 0.15,
+      "type": "unsupervised",
+      "architecture": {
+        "input_dim": 60,
+        "bottleneck_dim": 16,
+        "hidden_dims": [
+          192,
+          128
+        ],
+        "dropout": 0.0,
+        "use_batchnorm": false
+      },
+      "training": {
+        "trained_on": "normal_only",
+        "loss": "MSE",
+        "optimizer": "Adam"
+      },
+      "metrics": {
+        "auc_roc": 0.8052417013998263,
+        "pr_auc": 0.7693317359284196,
+        "separation_ratio": 444.7109375,
+        "normal_mse_mean": 0.0001484663807787001,
+        "attack_mse_mean": 0.06602462381124496
+      },
+      "masked_indices": []
+    }
+  },
+  "scaler": "feature_scaler_v8.json",
+  "hyperparameters": {
+    "objective": "binary",
+    "metric": "binary_logloss",
+    "boosting_type": "gbdt",
+    "verbosity": -1,
+    "seed": 42,
+    "n_jobs": -1,
+    "scale_pos_weight": 2.4100072641968397,
+    "feature_pre_filter": false,
+    "num_leaves": 106,
+    "max_depth": 8,
+    "learning_rate": 0.14523127976989275,
+    "min_child_samples": 11,
+    "colsample_bytree": 0.9974972319044002,
+    "subsample": 0.860029515336959,
+    "subsample_freq": 2,
+    "reg_alpha": 0.38320023153456756,
+    "reg_lambda": 0.4092725718456964,
+    "min_gain_to_split": 0.9972023120062615,
+    "max_bin": 255,
+    "path_smooth": 7.138487470381258
+  },
+  "training": {
+    "train_samples": 2046700,
+    "val_samples": 176734,
+    "test_samples": 176686,
+    "total_samples": 2400120,
+    "cv_metrics": {
+      "cv_f1_mean": 0.0,
+      "cv_f1_std": 0.0,
+      "cv_auc_mean": 0.0,
+      "avg_best_iteration": 1800,
+      "folds": []
+    },
+    "test_metrics": {
+      "f1": 0.9447,
+      "precision": 0.916,
+      "recall": 0.9753,
+      "auc": 0.9957,
+      "confusion_matrix": [
+        [
+          111020,
+          5393
+        ],
+        [
+          1491,
+          58782
+        ]
+      ],
+      "fp_rate_pct": 4.63,
+      "fn_rate_pct": 2.47,
+      "per_dataset": {
+        "ad_lanl": {
+          "n": 12370,
+          "f1": 0.7721,
+          "precision": 0.7477,
+          "recall": 0.7981,
+          "auc": 0.9967
+        },
+        "cloud_aws": {
+          "n": 5450,
+          "f1": 0.9985,
+          "precision": 0.9995,
+          "recall": 0.9975,
+          "auc": 1.0
+        },
+        "cremev2_traffic": {
+          "n": 3655,
+          "f1": 0.993,
+          "precision": 0.9995,
+          "recall": 0.9866,
+          "auc": 0.9958
+        },
+        "dns_dga": {
+          "n": 19523,
+          "f1": 0.9548,
+          "precision": 0.9362,
+          "recall": 0.9741,
+          "auc": 0.9838
+        },
+        "dns_doh": {
+          "n": 19364,
+          "f1": 0.9966,
+          "precision": 0.9947,
+          "recall": 0.9984,
+          "auc": 0.9999
+        },
+        "dns_exfil": {
+          "n": 1631,
+          "f1": 0.6525,
+          "precision": 0.5227,
+          "recall": 0.8679,
+          "auc": 0.9864
+        },
+        "email": {
+          "n": 16476,
+          "f1": 0.8047,
+          "precision": 0.7119,
+          "recall": 0.9255,
+          "auc": 0.892
+        },
+        "firewall": {
+          "n": 19015,
+          "f1": 0.9547,
+          "precision": 0.9204,
+          "recall": 0.9916,
+          "auc": 0.9992
+        },
+        "ids_2017": {
+          "n": 19716,
+          "f1": 0.9725,
+          "precision": 0.9613,
+          "recall": 0.9839,
+          "auc": 0.9988
+        },
+        "ids_2018": {
+          "n": 20348,
+          "f1": 0.9963,
+          "precision": 0.9954,
+          "recall": 0.9973,
+          "auc": 1.0
+        },
+        "ids_kdd": {
+          "n": 7340,
+          "f1": 0.9441,
+          "precision": 0.9448,
+          "recall": 0.9433,
+          "auc": 0.9959
+        },
+        "netflow": {
+          "n": 9394,
+          "f1": 0.9972,
+          "precision": 0.995,
+          "recall": 0.9993,
+          "auc": 1.0
+        },
+        "syslog_cremev2": {
+          "n": 1343,
+          "f1": 0.8666,
+          "precision": 0.7682,
+          "recall": 0.9938,
+          "auc": 0.8579
+        },
+        "syslog_lanl": {
+          "n": 9290,
+          "f1": 0.0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "auc": 0.7906
+        },
+        "syslog_ssh": {
+          "n": 3931,
+          "f1": 0.9986,
+          "precision": 0.9972,
+          "recall": 1.0,
+          "auc": 1.0
+        },
+        "web_csic": {
+          "n": 253,
+          "f1": 0.9939,
+          "precision": 0.9879,
+          "recall": 1.0,
+          "auc": 1.0
+        },
+        "web_queries": {
+          "n": 7496,
+          "f1": 0.9173,
+          "precision": 0.8944,
+          "recall": 0.9413,
+          "auc": 0.9634
+        },
+        "windows": {
+          "n": 91,
+          "f1": null,
+          "all_benign": true
+        }
+      },
+      "threshold_analysis": {
+        "0.3": {
+          "precision": 0.8788,
+          "recall": 0.988,
+          "f1": 0.9302,
+          "fpr_pct": 7.05
+        },
+        "0.4": {
+          "precision": 0.8994,
+          "recall": 0.9826,
+          "f1": 0.9392,
+          "fpr_pct": 5.69
+        },
+        "0.5": {
+          "precision": 0.916,
+          "recall": 0.9753,
+          "f1": 0.9447,
+          "fpr_pct": 4.63
+        },
+        "0.6": {
+          "precision": 0.9322,
+          "recall": 0.9655,
+          "f1": 0.9486,
+          "fpr_pct": 3.63
+        },
+        "0.7": {
+          "precision": 0.9486,
+          "recall": 0.9495,
+          "f1": 0.949,
+          "fpr_pct": 2.67
+        },
+        "0.8": {
+          "precision": 0.9683,
+          "recall": 0.9202,
+          "f1": 0.9436,
+          "fpr_pct": 1.56
+        },
+        "0.9": {
+          "precision": 0.9848,
+          "recall": 0.8797,
+          "f1": 0.9293,
+          "fpr_pct": 0.7
+        }
+      },
+      "optimal_threshold": 0.6808
+    }
+  },
+  "feature_importance": {
+    "hour_sin": {
+      "gain": 0.507,
+      "split": 3.2272
+    },
+    "hour_cos": {
+      "gain": 0.9751,
+      "split": 3.7623
+    },
+    "dow_sin": {
+      "gain": 0.747,
+      "split": 2.3162
+    },
+    "dow_cos": {
+      "gain": 0.375,
+      "split": 0.7042
+    },
+    "is_off_hours": {
+      "gain": 0.1096,
+      "split": 0.065
+    },
+    "log_type": {
+      "gain": 1.6715,
+      "split": 0.5795
+    },
+    "severity_numeric": {
+      "gain": 1.4963,
+      "split": 0.2513
+    },
+    "message_length_log": {
+      "gain": 4.7602,
+      "split": 8.8988
+    },
+    "message_entropy": {
+      "gain": 1.3033,
+      "split": 10.5689
+    },
+    "dst_port_bin": {
+      "gain": 1.2008,
+      "split": 0.3726
+    },
+    "protocol_numeric": {
+      "gain": 4.9122,
+      "split": 0.6769
+    },
+    "total_bytes_log": {
+      "gain": 3.3554,
+      "split": 4.3332
+    },
+    "byte_ratio": {
+      "gain": 5.145,
+      "split": 3.3862
+    },
+    "total_packets_log": {
+      "gain": 6.799,
+      "split": 2.6991
+    },
+    "packet_ratio": {
+      "gain": 5.0919,
+      "split": 2.3179
+    },
+    "flow_duration_log": {
+      "gain": 4.9554,
+      "split": 3.9845
+    },
+    "avg_pkt_size": {
+      "gain": 3.1352,
+      "split": 3.9127
+    },
+    "pkt_size_variance": {
+      "gain": 4.3521,
+      "split": 3.1828
+    },
+    "iat_mean": {
+      "gain": 3.5383,
+      "split": 2.923
+    },
+    "iat_stddev": {
+      "gain": 1.2392,
+      "split": 2.0034
+    },
+    "tcp_syn_flag": {
+      "gain": 0.1675,
+      "split": 0.065
+    },
+    "tcp_rst_flag": {
+      "gain": 0.8998,
+      "split": 0.0786
+    },
+    "tcp_fin_flag": {
+      "gain": 4.1059,
+      "split": 0.2017
+    },
+    "retransmit_ratio": {
+      "gain": 0.8284,
+      "split": 0.2786
+    },
+    "auth_type_encoded": {
+      "gain": 0.7272,
+      "split": 0.3761
+    },
+    "status_is_fail": {
+      "gain": 0.0626,
+      "split": 0.0444
+    },
+    "is_admin": {
+      "gain": 1.0183,
+      "split": 0.0667
+    },
+    "src_dst_match": {
+      "gain": 1.8448,
+      "split": 0.1812
+    },
+    "is_remote": {
+      "gain": 2.2212,
+      "split": 0.0444
+    },
+    "fail_rate": {
+      "gain": 0.0763,
+      "split": 0.4478
+    },
+    "unique_targets": {
+      "gain": 0.4516,
+      "split": 1.041
+    },
+    "event_frequency": {
+      "gain": 13.4078,
+      "split": 1.9452
+    },
+    "domain_length": {
+      "gain": 0.2726,
+      "split": 1.3094
+    },
+    "domain_entropy": {
+      "gain": 1.2975,
+      "split": 3.0905
+    },
+    "subdomain_depth": {
+      "gain": 1.0896,
+      "split": 0.4974
+    },
+    "digit_ratio": {
+      "gain": 0.2373,
+      "split": 0.7948
+    },
+    "max_consonant_run": {
+      "gain": 3.3279,
+      "split": 1.1948
+    },
+    "bigram_frequency": {
+      "gain": 0.8197,
+      "split": 4.8392
+    },
+    "has_hex_pattern": {
+      "gain": 0.0002,
+      "split": 0.0103
+    },
+    "tld_risk": {
+      "gain": 0.2474,
+      "split": 1.1914
+    },
+    "url_length": {
+      "gain": 3.2227,
+      "split": 1.8478
+    },
+    "url_entropy": {
+      "gain": 0.19,
+      "split": 2.3606
+    },
+    "query_param_count": {
+      "gain": 0.3337,
+      "split": 0.3726
+    },
+    "has_sql_pattern": {
+      "gain": 0.0043,
+      "split": 0.0359
+    },
+    "has_xss_pattern": {
+      "gain": 0.0062,
+      "split": 0.0735
+    },
+    "has_traversal": {
+      "gain": 0.0024,
+      "split": 0.0444
+    },
+    "http_method": {
+      "gain": 0.0018,
+      "split": 0.0222
+    },
+    "subject_length": {
+      "gain": 0.2337,
+      "split": 2.7828
+    },
+    "body_length_log": {
+      "gain": 1.3282,
+      "split": 4.9195
+    },
+    "subject_entropy": {
+      "gain": 0.4684,
+      "split": 4.581
+    },
+    "url_count": {
+      "gain": 0.1431,
+      "split": 0.8239
+    },
+    "caps_ratio": {
+      "gain": 0.4756,
+      "split": 2.2786
+    },
+    "has_urgency": {
+      "gain": 0.0255,
+      "split": 0.1077
+    },
+    "has_financial": {
+      "gain": 0.0817,
+      "split": 0.1914
+    },
+    "event_name_encoded": {
+      "gain": 2.8746,
+      "split": 0.629
+    },
+    "is_sensitive_service": {
+      "gain": 0.3856,
+      "split": 0.253
+    },
+    "is_read_only": {
+      "gain": 0.9903,
+      "split": 0.0855
+    },
+    "has_error": {
+      "gain": 0.054,
+      "split": 0.012
+    },
+    "identity_type_encoded": {
+      "gain": 0.4053,
+      "split": 0.7111
+    },
+    "is_root": {
+      "gain": 0.0,
+      "split": 0.0034
+    }
+  },
+  "thresholds": {
+    "suspicious": 0.4,
+    "anomalous": 0.9,
+    "optimal_f1": 0.6808
+  },
+  "data_pipeline": {
+    "extraction": "extract_features_v8.py",
+    "scaling": "StandardScaler z-score + clip [-10, 10]",
+    "source_features": "C:/CLIF/agents/Data/training_v8"
+  }
+}

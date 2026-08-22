@@ -1,0 +1,5 @@
+<clickhouse>
+    <!-- Align with container memory limit (6G primary).
+         5G server cap leaves ~1G for OS/buffers. -->
+    <max_server_memory_usage>5368709120</max_server_memory_usage>
+</clickhouse>

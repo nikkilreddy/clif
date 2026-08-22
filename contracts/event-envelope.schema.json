@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://chrontinal.dev/schemas/event-envelope.json",
+  "title": "Chrontinal Event Envelope",
+  "type": "object",
+  "required": ["event_id", "observed_at", "source", "event"],
+  "properties": {
+    "event_id": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "source": {
+      "type": "object",
+      "required": ["name", "kind"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "tenant": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "event": {"type": "object"},
+    "context": {"type": "object"},
+    "trace": {"type": "object"}
+  },
+  "additionalProperties": false
+}

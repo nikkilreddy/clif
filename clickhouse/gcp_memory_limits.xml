@@ -1,0 +1,4 @@
+<clickhouse>
+    <!-- GCP: 3 GB server cap for single-node ClickHouse (leaves 1G for OS) -->
+    <max_server_memory_usage>3221225472</max_server_memory_usage>
+</clickhouse>

@@ -1,0 +1,267 @@
+# =============================================================================
+# Chrontinal — Local Hackathon Demo Mode (Single Replica Stack)
+# =============================================================================
+# Optimized for local laptops (MacBook / Linux / Windows with 8GB - 16GB RAM)
+# Total memory footprint: ~4.5 GB - 6.0 GB RAM
+#
+# Usage:
+#   docker compose -f docker-compose.local.yml up -d
+#   docker compose -f docker-compose.local.yml ps
+#   docker compose -f docker-compose.local.yml down
+# =============================================================================
+
+networks:
+  clif-net:
+    driver: bridge
+
+volumes:
+  clickhouse_data:
+  redpanda_data:
+  vector_data:
+  hunter_models:
+
+services:
+  # Protocol-neutral ingress for SIEMs and custom tools.
+  ingest-service:
+    build:
+      context: ./ingest-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BROKERS: "redpanda01:9092"
+      DEFAULT_TOPIC: "raw-logs"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - clif-net
+
+  # ── 1. Redpanda (Single Broker Kafka-compatible stream) ─────────────────────
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.1.8
+    container_name: redpanda01
+    hostname: redpanda01
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --memory=1G
+      - --reserve-memory=0M
+      - --overprovisioned
+      - --node-id=0
+      - --check=false
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:19092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda01:9092,OUTSIDE://localhost:19092
+    ports:
+      - "19092:19092"
+      - "9092:9092"
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    networks:
+      - clif-net
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy: true' || exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 2. ClickHouse (Single Node OLAP Database) ───────────────────────────────
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: clickhouse01
+    hostname: clickhouse01
+    ports:
+      - "8123:8123"  # HTTP
+      - "9000:9000"  # Native TCP
+    environment:
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-clif_admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clif_secure_password_change_me}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-clif_logs}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./clickhouse/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./clickhouse/gcp_standalone_config.xml:/etc/clickhouse-server/config.d/clif-standalone.xml:ro
+      - ./clickhouse/storage_policy_local.xml:/etc/clickhouse-server/config.d/clif-storage.xml:ro
+    networks:
+      - clif-net
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── 3. Vector Log Aggregator ────────────────────────────────────────────────
+  vector:
+    image: timberio/vector:0.38.0-alpine
+    container_name: clif-vector
+    hostname: clif-vector
+    ports:
+      - "1514:1514"
+      - "9514:9514"
+      - "8686:8686"
+    environment:
+      VECTOR_KAFKA_BROKERS: "redpanda01:9092"
+    volumes:
+      - ./vector/vector.yaml:/etc/vector/vector.yaml:ro
+      - vector_data:/var/lib/vector
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - clif-net
+
+  # ── 4. Go High-Performance Streaming Consumer ──────────────────────────────
+  consumer-go:
+    build:
+      context: ./consumer-go
+      dockerfile: Dockerfile
+    container_name: clif-consumer
+    environment:
+      KAFKA_BROKERS: "redpanda01:9092"
+      CLICKHOUSE_HOST: "clickhouse01"
+      CLICKHOUSE_PORT: "9000"
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-clif_admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clif_secure_password_change_me}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-clif_logs}
+      CONSUMER_GROUP_ID: "clif-clickhouse-consumer"
+      CONSUMER_BATCH_SIZE: "50000"
+      CONSUMER_FLUSH_INTERVAL_SEC: "1.0"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - clif-net
+    restart: unless-stopped
+
+  # ── 5. Triage Agent (v8 LightGBM ONNX Universal Classifier) ────────────────
+  triage-agent:
+    build:
+      context: ./agents/triage
+      dockerfile: Dockerfile
+    ports:
+      - "8300:8300"
+    environment:
+      KAFKA_BROKERS: "redpanda01:9092"
+      CONSUMER_GROUP_ID: "clif-triage-agent"
+      INPUT_TOPICS: "raw-logs,security-events,process-events,network-events"
+      TOPIC_TRIAGE_SCORES: "triage-scores"
+      TOPIC_ANOMALY_ALERTS: "anomaly-alerts"
+      TOPIC_HUNTER_TASKS: "hunter-tasks"
+      TOPIC_DEAD_LETTER: "dead-letter"
+      CLICKHOUSE_HOST: "clickhouse01"
+      CLICKHOUSE_PORT: "9000"
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-clif_admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clif_secure_password_change_me}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-clif_logs}
+      MODEL_DIR: "/models"
+      MODEL_LGBM_PATH: "/models/lgbm_v8.onnx"
+      MODEL_AUTOENCODER_PATH: "/models/autoencoder_v8.onnx"
+      FEATURE_SCALER_PATH: "/models/feature_scaler_v8.json"
+      LGBM_WEIGHT: "1.00"
+      DEFAULT_SUSPICIOUS_THRESHOLD: "0.40"
+      DEFAULT_ANOMALOUS_THRESHOLD: "0.90"
+      LOG_LEVEL: "INFO"
+    volumes:
+      - ./agents/triage/models:/models:ro
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - clif-net
+
+  # ── 6. Hunter Investigation Agent (CatBoost & Attack Graph Builder) ─────────
+  hunter-agent:
+    build:
+      context: ./agents/hunter
+      dockerfile: Dockerfile
+    ports:
+      - "8400:8400"
+    environment:
+      KAFKA_BROKERS: "redpanda01:9092"
+      CONSUMER_GROUP_ID: "clif-hunter-agent"
+      TOPIC_HUNTER_TASKS: "hunter-tasks"
+      TOPIC_HUNTER_RESULTS: "hunter-results"
+      CLICKHOUSE_HOST: "clickhouse01"
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-clif_admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clif_secure_password_change_me}
+      CLICKHOUSE_DATABASE: ${CLICKHOUSE_DB:-clif_logs}
+      HUNTER_SCORE_GATE: "0.65"
+      INVESTIGATION_WINDOW_MIN: "15"
+      LOG_LEVEL: "INFO"
+    volumes:
+      - hunter_models:/app/models
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - clif-net
+
+  # ── 7. Verifier Forensic Agent (Evidence & Verdict Matrix) ──────────────────
+  verifier-agent:
+    build:
+      context: ./agents/verifier
+      dockerfile: Dockerfile
+    ports:
+      - "8500:8500"
+    environment:
+      KAFKA_BROKERS: "redpanda01:9092"
+      CONSUMER_GROUP_ID: "clif-verifier-agent"
+      TOPIC_HUNTER_RESULTS: "hunter-results"
+      TOPIC_VERIFIER_RESULTS: "verifier-results"
+      CLICKHOUSE_HOST: "clickhouse01"
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-clif_admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clif_secure_password_change_me}
+      CLICKHOUSE_DATABASE: ${CLICKHOUSE_DB:-clif_logs}
+      LOG_LEVEL: "INFO"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    networks:
+      - clif-net
+
+  # ── 8. Next.js 14 SOC Dashboard ────────────────────────────────────────────
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: clif-dashboard
+    ports:
+      - "3001:3001"
+    environment:
+      NEXT_PUBLIC_APP_NAME: "Chrontinal SOC"
+      CLICKHOUSE_HOST: "clickhouse01"
+      CLICKHOUSE_PORT: "8123"
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-clif_admin}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clif_secure_password_change_me}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-clif_logs}
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    networks:
+      - clif-net
+
+  # ── 9. SecureBank Demo Application & Live Attack Generator ─────────────────
+  securebank:
+    build:
+      context: ./demo/securebank
+      dockerfile: Dockerfile
+    container_name: clif-securebank
+    ports:
+      - "5001:5000"
+    environment:
+      VECTOR_HOST: "clif-vector"
+      VECTOR_PORT: "9514"
+    depends_on:
+      - vector
+    networks:
+      - clif-net

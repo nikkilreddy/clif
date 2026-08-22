@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+{% block content %}
+<div class="min-h-[60vh] flex items-center justify-center px-4">
+    <div class="text-center">
+        <p class="text-6xl font-extrabold text-red-500 mb-4">{{ code }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ message }}</h1>
+        <p class="text-gray-500 mb-6">This access attempt has been logged and reported to the SOC team.</p>
+        <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg transition">
+            Return Home
+        </a>
+    </div>
+</div>
+{% endblock %}
