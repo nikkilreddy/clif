@@ -1,41 +1,44 @@
 ================================================================================
-CLIF — HACKATHON DEMO VIDEO SCRIPT & SPOKEN PRESENTATION
+CLIF — CASUAL & CONVERSATIONAL DEMO VIDEO SCRIPT
 ================================================================================
 Project: CLIF (Cognitive Log Investigation Platform)
 GitHub Repository: https://github.com/nikkilreddy/clif
 Author / Speaker: Ram Nikhil Reddy (@nikkilreddy)
-Duration: ~2:45 – 3:00 Minutes
+Duration: ~2:30 – 3:00 Minutes
+Style: Friendly, Natural, Confident, Conversational
 
 ================================================================================
-DEMO CONCEPT & FLOW
+DEMO CONCEPT AT A GLANCE
 ================================================================================
-- We act as the Threat Actor targeting SecureBank (our realistic banking target).
-- SecureBank emits live security events as the attack script runs.
-- CLIF captures and streams logs in real-time through the high-speed data flow path:
-  SecureBank -> Vector (Rust) -> Redpanda (Stream Broker) -> Consumer-Go (LZ4 + UUID5) -> ClickHouse
-- The 3-Agent AI Pipeline (Triage -> Hunter -> Verifier) scores, investigates, correlates the Attack Graph, and outputs court-admissible forensic verdicts.
+- We act as the hacker attacking SecureBank (our demo banking app).
+- SecureBank generates live security logs as the attack runs.
+- CLIF captures and streams the logs in real time:
+  SecureBank -> Vector (Rust) -> Redpanda -> Consumer-Go -> ClickHouse
+- Our 3 AI Agents (Triage -> Hunter -> Verifier) automatically catch the attack, connect the dots on a visual graph, and explain what happened in plain English.
 
 ================================================================================
-WORD-FOR-WORD SCRIPT FOR RECORDING
+WORD-FOR-WORD CONVERSATIONAL SCRIPT
 ================================================================================
 
 --------------------------------------------------------------------------------
-📍 SCENE 1: THE PROBLEM & THE VISION (00:00 – 00:30)
+📍 SCENE 1: THE PROBLEM & THE IDEA (00:00 – 00:30)
 --------------------------------------------------------------------------------
 ON SCREEN:
 - Open Dashboard Home at http://localhost:3001
-- Show the clean dark-mode SOC interface with active agent statuses and live telemetry counters.
+- Show the clean dark-mode dashboard with live metrics.
 
 SPEAK:
-"Every single day, Security Operations Centers receive over 10,000 security alerts. Over 45% of them are false alarms. Human analysts drown in noise, while real cyberattacks take months to detect.
+"Hey everyone! 
 
-Legacy SIEMs rely on rigid IF-ELSE rules that break under novel mutations, while generic LLM wrappers are too slow and hallucinate.
+If you talk to any security analyst today, they'll tell you the exact same headache: they get flooded with over 10,000 alerts every single day, and nearly half of them are complete false alarms. Real attacks get buried, and digging through logs takes hours.
 
-We built CLIF (Cognitive Log Investigation Platform)—an autonomous 3-agent SIEM system that ingests raw logs at line rate, investigates cross-host attack kill chains, and delivers court-admissible forensic verdicts in under 60 seconds."
+Old-school tools rely on rigid if-else rules that break easily, and simply tossing raw logs into ChatGPT is way too slow and makes things up.
+
+So, we built CLIF. It's an autonomous multi-agent platform that catches threats in real time, connects the dots across your entire network, and gives you a clear, verified answer in under a minute."
 
 
 --------------------------------------------------------------------------------
-📍 SCENE 2: INGESTION & LIVE ATTACK SIMULATION (00:30 – 01:05)
+📍 SCENE 2: ATTACKING SECUREBANK & LIVE STREAMING (00:30 – 01:05)
 --------------------------------------------------------------------------------
 ON SCREEN:
 - Open SecureBank at http://localhost:5001
@@ -44,47 +47,49 @@ ON SCREEN:
   python3 demo/securebank/attack.py --fast
 
 SPEAK:
-"To demonstrate this live, we act as the threat actor targeting our vulnerable banking application, SecureBank.
+"Let’s see it in action. Here on screen, we have SecureBank—our demo banking app. 
 
-In our terminal, we launch a real multi-stage attack: port reconnaissance, credential brute-forcing, SQL injection, and database exfiltration.
+We’re going to put on our hacker hat and attack it right now. In the terminal on the right, I'm firing off our attack script—running port scans, brute-forcing the login, and hitting it with a SQL injection.
 
-Notice what happens on our Live Feed: SecureBank is continuously emitting raw security events.
+Over on our Live Feed, you can see SecureBank pumping out security logs in real time. 
 
-CLIF captures this firehose instantly through our high-speed data flow path: from Rust-native Vector, into Redpanda's distributed stream, batched via our custom Go consumer with LZ4 compression and UUID5 deduplication, and stored directly into ClickHouse at over 35,000 events per second with zero data loss."
+CLIF captures all of this instantly. We built a super-fast pipeline using Vector in Rust, a Redpanda stream, and a Go consumer that batches and compresses everything into ClickHouse at over 35,000 events a second without dropping a single packet."
 
 
 --------------------------------------------------------------------------------
-📍 SCENE 3: TRIAGE ML & ATTACK GRAPH (01:05 – 01:45)
+📍 SCENE 3: THE AI AGENTS & ATTACK GRAPH (01:05 – 01:45)
 --------------------------------------------------------------------------------
 ON SCREEN:
 - Navigate to Investigations (http://localhost:3001/investigations)
-- Open the escalated investigation and zoom into the interactive Attack Graph.
+- Click on the new investigation and zoom into the interactive Attack Graph.
 
 SPEAK:
-"Notice what happens under the hood:
+"Now, here’s where the AI magic happens. 
 
-First, our Triage Agent extracts 60 numerical features in microseconds and runs an ONNX dual-model ensemble—combining supervised LightGBM with an unsupervised Deep Neural Autoencoder to catch both known attacks and zero-day anomalies.
+First, our Triage Agent takes every single log, extracts 60 key features in microseconds, and runs them through our ML ensemble—using LightGBM for known attack patterns and a Neural Autoencoder for weird zero-day anomalies.
 
-When an event is flagged, it triggers our Hunter Agent. Rather than treating alerts in isolation, Hunter queries ClickHouse for surrounding temporal context across the entire network and dynamically constructs this Attack Graph—visually connecting the attacker's external IP, the compromised user account, and the target database table."
+When something looks suspicious, it hands it over to our Hunter Agent. 
+
+Instead of looking at alerts in isolation, Hunter digs into ClickHouse, checks surrounding activity across the whole network, and automatically builds this Attack Graph you see right here. It connects the attacker’s external IP, shows how they broke into the admin account, and pinpoints the exact database table they touched."
 
 
 --------------------------------------------------------------------------------
-📍 SCENE 4: VERIFIER VERDICT & NARRATIVE (01:45 – 02:20)
+📍 SCENE 4: VERIFIER VERDICT & PLAIN-ENGLISH TIMELINE (01:45 – 02:20)
 --------------------------------------------------------------------------------
 ON SCREEN:
-- Scroll down to the Verifier Verdict & Forensic Report section.
-- Highlight the Verdict Badge, Confidence Score, Priority Level, and Explainable AI (XAI) metrics.
+- Scroll down to the Verifier section.
+- Point out the Verdict Badge (True Positive), Confidence (94%), and the plain-English timeline.
 
 SPEAK:
-"Finally, our Verifier Agent acts like a Senior Forensic Investigator. It evaluates evidence coherence and produces a calibrated verdict: True Positive, Priority 1 Critical, with a 94% confidence score.
+"Finally, our Verifier Agent steps in like a senior investigator. It looks at the whole picture and gives us a clear verdict: True Positive, Priority 1 Critical, with 94% confidence.
 
-Crucially, if evidence is contradictory or missing, the system gracefully degrades and issues an explicit Inconclusive verdict instead of hallucinating dangerous automated actions.
+And here's the best part: if the logs are incomplete or contradictory, it doesn't hallucinate or make risky guesses—it safely flags it as 'Inconclusive'.
 
-It also generates this plain-English forensic narrative and step-by-step timeline, ready for human analysts or courtroom submission."
+Plus, it writes out this clean timeline explaining in plain English exactly what happened, along with the next steps to fix it, ready for the security team or even a courtroom."
 
 
 --------------------------------------------------------------------------------
-📍 SCENE 5: EVALUATION SUITE & CLOSING (02:20 – 02:50)
+📍 SCENE 5: AUTOMATED TEST SUITE & CLOSING (02:20 – 02:50)
 --------------------------------------------------------------------------------
 ON SCREEN:
 - Switch full-screen to terminal and run:
@@ -92,17 +97,19 @@ ON SCREEN:
 - Show all 20 test cases passing with green checkmarks.
 
 SPEAK:
-"To prove reliability, we built an automated evaluation harness testing 20 distinct cyberattack scenarios. As you can see, every test passes with 100% precision, zero alert fatigue, and robust error recovery.
+"To wrap up, we didn't just build a simple UI—we built an automated test suite with 20 real-world attack scenarios. 
 
-CLIF combines sub-millisecond data engineering with cognitive multi-agent reasoning to build something that truly couldn't have existed two years ago. Thank you!"
+In our terminal, you can see all 20 tests passing with 100% accuracy and zero alert fatigue.
+
+CLIF turns hours of stressful log digging into instant clarity. Thanks for watching, and we’d love to take your questions!"
 
 
 ================================================================================
 PRE-RECORDING CHECKLIST
 ================================================================================
-1. Ensure all containers are running: ./start_demo.sh
+1. Ensure containers are up: ./start_demo.sh
 2. Open browser tabs:
-   - Dashboard: http://localhost:3001
+   - Dashboard Home: http://localhost:3001
    - Live Feed: http://localhost:3001/live-feed
    - Investigations: http://localhost:3001/investigations
    - SecureBank: http://localhost:5001
