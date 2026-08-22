@@ -1,102 +1,118 @@
-# 🎬 CLIF — Hackathon Demo Video Script & Simulation Walkthrough
-## Title: Autonomous 3-Agent SIEM & Cyber Forensics Pipeline
-**Target Duration:** 2:30 – 3:00 Minutes  
-**Speaker:** Ram Nikhil Reddy ([@nikkilreddy](https://github.com/nikkilreddy))
+# 🎬 CLIF — Official Hackathon Demo Video Script & Spoken Presentation
+**Project:** CLIF (Cognitive Log Investigation Platform)  
+**Repository:** [https://github.com/nikkilreddy/clif](https://github.com/nikkilreddy/clif)  
+**Speaker:** Ram Nikhil Reddy ([@nikkilreddy](https://github.com/nikkilreddy))  
+**Duration:** ~3 Minutes (180 Seconds)  
+**Tone:** Confident, Clear, Authoritative, Steady Pace  
 
 ---
 
 ## 🎯 Demo Concept: The Attack & Defense Flow
-In this live demonstration:
-1. **We act as the Threat Actor / Attacker** launching targeted cyberattacks against **SecureBank** (our realistic banking web application).
-2. As the attack unfolds, **SecureBank generates raw security logs** (brute-force failures, SQL injections, privilege escalations, database queries).
-3. **CLIF captures and monitors these logs live** through the streaming path:  
-   `SecureBank` $\rightarrow$ `Vector (Rust)` $\rightarrow$ `Redpanda (Stream)` $\rightarrow$ `Consumer-Go` $\rightarrow$ `ClickHouse`
-4. **The 3 AI Agents (Triage $\rightarrow$ Hunter $\rightarrow$ Verifier)** autonomously catch, reconstruct, and explain the entire attack into visual attack graphs and forensic reports in real time!
+1. **We act as the Threat Actor / Attacker** launching targeted attacks against **SecureBank** (our realistic banking web application).
+2. As the attack runs, SecureBank emits real-time security events (recon, brute-force auth, SQL injection, database exfiltration).
+3. **CLIF captures and streams these logs live via:**  
+   `SecureBank` $\rightarrow$ `Vector (Rust)` $\rightarrow$ `Redpanda (Kafka stream)` $\rightarrow$ `Consumer-Go (LZ4 + UUID5)` $\rightarrow$ `ClickHouse`
+4. **The 3 AI Agents (Triage $\rightarrow$ Hunter $\rightarrow$ Verifier)** autonomously score, investigate, build visual Attack Graphs, and issue forensic verdicts in real time.
 
 ---
 
-## 🕒 Video Timeline & Screen Breakdown
+## 🕒 Timeline & On-Screen Cues
 
 | Time | Scene | On-Screen Action | Spoken Focus |
 | :--- | :--- | :--- | :--- |
-| **00:00 - 00:30** | 1. The Hook & The Problem | Dashboard Home (`http://localhost:3001`) | Modern SOC alert fatigue (10k+ alerts/day, 45% false positives) |
-| **00:30 - 01:05** | 2. Target SecureBank & Live Ingestion | Split Screen: SecureBank (`:5001`), Terminal (`attack.py`), and Live Feed (`:3001/live-feed`) | Attacking SecureBank; logs captured live through Vector $\rightarrow$ Redpanda $\rightarrow$ Go Consumer $\rightarrow$ ClickHouse |
-| **01:05 - 01:45** | 3. Triage AI & Hunter Attack Graph | Dashboard `/investigations` $\rightarrow$ Zoom into Interactive Attack Graph | 60-feature ML ensemble & cross-host topological attack graph |
-| **01:45 - 02:20** | 4. Verifier Forensic Verdict & Narrative | Verifier Section (Verdict, Confidence & Narrative) | 3-tier verdict matrix (`True Positive`), XAI & Graceful degradation |
-| **02:20 - 02:50** | 5. Automated Evaluation & Closing | Terminal running `python3 eval_harness.py` | 20 test cases passing live with 100% precision; Why this wins |
+| **00:00 - 00:35** | 1. The Problem & Vision | Dashboard Home (`http://localhost:3001`) | Modern SOC alert fatigue (10k+ alerts/day, 45% false positives) |
+| **00:35 - 01:10** | 2. Target SecureBank & Ingestion | SecureBank (`:5001`), Terminal (`attack.py`), Live Feed (`:3001/live-feed`) | Attacking SecureBank; logs captured live through Vector $\rightarrow$ Redpanda $\rightarrow$ Go Consumer $\rightarrow$ ClickHouse |
+| **01:10 - 01:50** | 3. Triage ML & Hunter Graph | Dashboard `/investigations` $\rightarrow$ Zoom into Interactive Attack Graph | 60-feature ML ensemble & cross-host topological attack graph |
+| **01:50 - 02:25** | 4. Verifier Forensic Verdict | Verifier Section (Verdict, Confidence & Narrative) | 3-tier verdict matrix (`True Positive`), XAI & Graceful degradation |
+| **02:25 - 03:00** | 5. Automated Evaluation & Close | Terminal running `python3 eval_harness.py` | 20 test cases passing live with 100% precision; Why this wins |
 
 ---
 
-## 🎙️ Word-for-Word Spoken Script
+## 🎙️ Complete Word-for-Word Spoken Script
 
 ---
 
-### 📍 Scene 1: The Problem & The Solution (00:00 – 00:30)
+### 📍 Scene 1: The Problem & The Vision (00:00 – 00:35)
 
 🖥️ **What to Show on Screen:**
 * Open browser at `http://localhost:3001` (Dashboard Home).
-* Show the clean dark-mode SOC interface with active agent statuses and live telemetry counters.
+* Show the dark-mode SOC dashboard with active agent telemetry cards and live metric counters.
 
-🗣️ **What to Say:**
-> *"Every single day, Security Operations Centers receive over 10,000 security alerts. Over 45% of them are false alarms. Human analysts drown in noise, while real cyberattacks take months to detect.*
+🗣️ **What to Speak:**
+> *"Good morning judges and mentors.*
 >
-> *Legacy SIEMs rely on rigid IF-ELSE rules that break under novel mutations, while generic LLM wrappers are too slow and hallucinate.*
+> *Every single day, enterprise Security Operations Centers receive over 10,000 security alerts. Over 45% of them are false alarms. Human analysts are drowning in alert fatigue, and as a result, real cyber breaches go undetected for months.*
 >
-> *We built **CLIF (Cognitive Log Investigation Platform)**—an autonomous 3-agent SIEM system that ingests raw logs at line rate, investigates cross-host attack kill chains, and delivers court-admissible forensic verdicts in under 60 seconds."*
+> *Traditional SIEMs rely on rigid, hand-written IF-ELSE rules that break the moment an attacker modifies a payload. On the other hand, generic single-prompt LLM wrappers are too slow, expensive, and hallucinate fake CVEs.*
+>
+> *To solve this, we built **CLIF**—the Cognitive Log Investigation Platform.*
+>
+> *CLIF is an autonomous, three-agent SIEM system that ingests raw telemetry at line rate, correlates cross-host attack kill chains, and delivers court-admissible forensic verdicts in under sixty seconds."*
 
 ---
 
-### 📍 Scene 2: Attacking SecureBank & High-Speed Ingestion (00:30 – 01:05)
+### 📍 Scene 2: Attacking SecureBank & High-Speed Data Pipeline (00:35 – 01:10)
 
 🖥️ **What to Show on Screen:**
-* Open **SecureBank** at `http://localhost:5001` (the vulnerable banking target).
-* Open the **Live Feed** at `http://localhost:3001/live-feed`.
-* Open a split terminal alongside the browser and execute the attack script:
+* Show **SecureBank** at `http://localhost:5001` (our vulnerable banking target).
+* Show the **Live Feed** at `http://localhost:3001/live-feed`.
+* Open a split terminal window alongside the browser and execute:
   ```bash
   python3 demo/securebank/attack.py --fast
   ```
 
-🗣️ **What to Say:**
-> *"To demonstrate this live, we act as the threat actor targeting our vulnerable banking application, **SecureBank**.*
+🗣️ **What to Speak:**
+> *"To demonstrate this live, we are going to act as the threat actor targeting our vulnerable banking application, **SecureBank**.*
 >
-> *As our attack script runs in the terminal—launching reconnaissance, brute-forcing admin credentials, and executing SQL injections—SecureBank continuously emits raw security events.*
+> *In our terminal, we launch a real multi-stage attack: port reconnaissance, credential brute-forcing, SQL injection, and database exfiltration.*
 >
-> *CLIF captures and monitors this telemetry in real-time through our high-speed data flow path: from **Rust-native Vector**, into **Redpanda's distributed stream**, batched via our custom **Go consumer with LZ4 compression and UUID5 deduplication**, and stored directly into **ClickHouse** at over 35,000 events per second with zero data loss."*
+> *Notice what happens on our Live Feed: SecureBank is continuously emitting raw security events.*
+>
+> *CLIF captures this firehose instantly through our high-speed ingestion pipeline:*
+> *First, a Rust-native Vector engine normalizes the raw logs.*
+> *Second, Redpanda buffers the stream with zero packet loss.*
+> *Third, our custom Go batch consumer—utilizing zero-allocation buffers, LZ4 compression, and deterministic UUID5 deduplication—flushes records directly into ClickHouse at over 35,000 events per second."*
 
 ---
 
-### 📍 Scene 3: Triage ML & Hunter Attack Graph (01:05 – 01:45)
+### 📍 Scene 3: The AI Intelligence Tier — Triage & Hunter (01:10 – 01:50)
 
 🖥️ **What to Show on Screen:**
-* Navigate to **Investigations** (`http://localhost:3001/investigations`).
+* Navigate to `http://localhost:3001/investigations`.
 * Click and open the newly escalated investigation.
-* Zoom in and pan across the **Interactive Attack Graph**.
+* Zoom in and pan across the interactive **Attack Graph**.
 
-🗣️ **What to Say:**
-> *"Now let's see how our AI pipeline investigates what just happened:*
+🗣️ **What to Speak:**
+> *"Now, let's look at the brain of CLIF—our multi-agent AI pipeline.*
 >
-> *First, our **Triage Agent** extracts 60 numerical features per event in microseconds and runs an ONNX dual-model ensemble—combining supervised LightGBM with an unsupervised Deep Neural Autoencoder to catch both known attack patterns and zero-day payload anomalies.*
+> *Step One is the **Triage Agent**. For every single event, it extracts 60 numerical features across seven domain layers in just ten microseconds. It runs a dual ONNX ensemble: supervised LightGBM for known attack signatures, and an unsupervised Deep Neural Autoencoder for zero-day behavioral anomalies.*
 >
-> *When an event is flagged as high-risk, it triggers our **Hunter Agent**. Rather than looking at alerts in isolation, Hunter queries ClickHouse for historical context across the entire network and dynamically constructs this **Attack Graph**—visually mapping how the attacker's external IP compromised the admin account and accessed sensitive customer financial records."*
+> *When an event exceeds our risk threshold, it escalates to Step Two: the **Hunter Agent**.*
+>
+> *Rather than looking at alerts in isolation, Hunter queries ClickHouse for surrounding context across the entire network. It uses five correlation engines—including Sigma rules, statistical 3-sigma anomalies, and temporal sequencing—to automatically construct this interactive **Attack Graph**.*
+>
+> *As you can see on screen, the graph visually links the attacker's external IP, the compromised admin account, and the target database table."*
 
 ---
 
-### 📍 Scene 4: Verifier Agent & Forensic Decision (01:45 – 02:20)
+### 📍 Scene 4: Verifier Forensic Verdict & Narrative (01:50 – 02:25)
 
 🖥️ **What to Show on Screen:**
-* Scroll down to the **Verifier Verdict & Forensic Report** section.
-* Point out the **Verdict Badge**, **Confidence Score**, **Priority Level**, and **Explainable AI (XAI)** metrics.
+* Scroll down to the Verifier section.
+* Highlight the **Verdict Badge** (`True Positive`), **Confidence Score** (`94%`), **Priority Level** (`P1 Critical`), and the **Explainable AI (XAI)** metrics.
 
-🗣️ **What to Say:**
-> *"Finally, our **Verifier Agent** acts like a Senior Forensic Investigator. It evaluates evidence coherence across the graph and produces a calibrated verdict: **True Positive, Priority 1 Critical, with a 94% confidence score**.*
+🗣️ **What to Speak:**
+> *"Step Three is the **Verifier Agent**, which acts like a Senior Forensic Investigator.*
 >
-> *Crucially, if evidence is contradictory or missing, the system gracefully degrades and issues an explicit `Inconclusive` verdict instead of hallucinating dangerous automated actions.*
+> *It evaluates the coherence of the evidence and delivers a calibrated verdict: **True Positive, Priority 1 Critical, with a 94% confidence score**.*
 >
-> *It also generates this plain-English forensic narrative and step-by-step timeline, ready for human analysts or courtroom submission."*
+> *Crucially, we built CLIF around the principle of **Graceful Degradation**. If logs are missing or contradictory, the system will never hallucinate an unsafe automated action—it safely issues an explicit `Inconclusive` verdict with wide confidence bounds.*
+>
+> *Furthermore, it generates this plain-English incident timeline and recommended remediation playbook, ready for tier-1 analysts or courtroom submission."*
 
 ---
 
-### 📍 Scene 5: Automated Evaluation Harness & Closing (02:20 – 02:50)
+### 📍 Scene 5: Evaluation Harness & Closing (02:25 – 03:00)
 
 🖥️ **What to Show on Screen:**
 * Switch full-screen to terminal and run:
@@ -105,19 +121,23 @@ In this live demonstration:
   ```
 * Show all 20 test cases passing with green checkmarks.
 
-🗣️ **What to Say:**
-> *"To prove reliability, we built an automated evaluation harness testing 20 distinct cyberattack scenarios. As you can see, every test passes with 100% precision, zero alert fatigue, and robust error recovery.*
+🗣️ **What to Speak:**
+> *"Finally, we didn't just build a demo—we built an automated evaluation harness testing 20 distinct cyberattack and failure scenarios.*
 >
-> *CLIF bridges high-speed data engineering with cognitive multi-agent reasoning to build an autonomous SIEM that truly couldn't have existed two years ago. Thank you!"*
+> *As you can see in the terminal, all twenty test cases pass with 100% precision, zero alert fatigue, and full resilience against simulated tool outages.*
+>
+> *CLIF proves that by combining line-rate data engineering with cognitive multi-agent reasoning, we can replace hours of manual log digging with sub-minute forensic clarity.*
+>
+> *Thank you, and I am now ready for your questions!"*
 
 ---
 
 ## 🛠️ Pre-Recording Checklist:
-1. Ensure all local services are up: `./start_demo.sh`
-2. Open tabs in browser:
+1. Start local stack: `./start_demo.sh`
+2. Open browser tabs:
    * Tab 1: `http://localhost:3001` (Dashboard Home)
    * Tab 2: `http://localhost:3001/live-feed` (Live Feed)
    * Tab 3: `http://localhost:3001/investigations` (Investigations)
    * Tab 4: `http://localhost:5001` (SecureBank)
-3. Have a terminal ready with: `python3 demo/securebank/attack.py --fast`
-4. Have a second terminal ready with: `python3 eval_harness.py`
+3. Terminal ready: `python3 demo/securebank/attack.py --fast`
+4. Terminal ready: `python3 eval_harness.py`
